@@ -1,5 +1,11 @@
 import prisma from "../lib/prisma"
 
+const COINS_BY_RESULT: Record<string, number> = {
+  win: 150,
+  draw: 75,
+  loss: 30,
+}
+
 export async function createMatch(userId: number, data: {
   result: string
   goalsFor: number
@@ -15,18 +21,29 @@ export async function createMatch(userId: number, data: {
     isMVP: boolean
   }[]
 }) {
-  return prisma.match.create({
-    data: {
-      userId,
-      result: data.result,
-      goalsFor: data.goalsFor,
-      goalsAgainst: data.goalsAgainst,
-      playerStats: {
-        create: data.playerStats,
+  const coinsEarned = COINS_BY_RESULT[data.result] ?? 0
+
+  const [match] = await prisma.$transaction([
+    prisma.match.create({
+      data: {
+        userId,
+        result: data.result,
+        goalsFor: data.goalsFor,
+        goalsAgainst: data.goalsAgainst,
+        coinsEarned,
+        playerStats: {
+          create: data.playerStats,
+        },
       },
-    },
-    include: { playerStats: true },
-  })
+      include: { playerStats: true },
+    }),
+    prisma.user.update({
+      where: { id: userId },
+      data: { coins: { increment: coinsEarned } },
+    }),
+  ])
+
+  return match
 }
 
 export async function getMatchHistory(userId: number) {

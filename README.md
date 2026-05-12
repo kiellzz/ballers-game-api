@@ -1,5 +1,5 @@
 # Ballers Game API
-REST API for user authentication, player management and match tracking, built with Node.js, TypeScript, Express, Prisma and PostgreSQL.
+REST API for user authentication, player management, match tracking and coins system, built with Node.js, TypeScript, Express, Prisma and PostgreSQL.
 
 ![Tests](https://github.com/kiellzz/ballers-game-api/actions/workflows/tests.yml/badge.svg)
 
@@ -81,7 +81,22 @@ npm test
 ### Stats
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/stats` | Get aggregated user stats |
+| GET | `/api/stats` | Get aggregated user stats (includes coins) |
+
+### Coins
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/coins` | Get user's current coin balance |
+
+## Coins System
+
+Users earn coins automatically when a match is recorded:
+
+| Result | Coins Earned |
+|--------|-------------|
+| Win | +150 |
+| Draw | +75 |
+| Loss | +30 |
 
 ## Match Player Stats
 

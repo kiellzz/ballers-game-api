@@ -1,10 +1,13 @@
 import prisma from "../lib/prisma"
 
 export async function getUserStats(userId: number) {
-  const matches = await prisma.match.findMany({
-    where: { userId },
-    include: { playerStats: true },
-  })
+  const [user, matches] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { coins: true } }),
+    prisma.match.findMany({
+      where: { userId },
+      include: { playerStats: true },
+    }),
+  ])
 
   const totalMatches = matches.length
   const wins = matches.filter(m => m.result === "win").length
@@ -28,6 +31,7 @@ export async function getUserStats(userId: number) {
   }, allStats[0] || null)
 
   return {
+    coins: user?.coins ?? 0,
     totalMatches,
     wins,
     draws,
